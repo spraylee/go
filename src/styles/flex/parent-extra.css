@@ -1,0 +1,52 @@
+/* 
+
+col, row, 
+
+col-start(col), col-center, col-end, col-around, col-between, col-evenly, col-stretch
+row-start(row), row-center, row-end, row-around, row-between, row-evenly, col-stretch
+
+items-center(default) items-start items-end items-stretch
+content-center content-start content-end content-between content-around content-stretch(default)
+
+wrap, no-wrap
+
+*/
+
+.warp {
+  flex-wrap: wrap;
+}
+.no-warp {
+  flex-wrap: nowrap;
+}
+
+.items-center {
+  align-items: center;
+}
+.items-start {
+  align-items: flex-start;
+}
+.items-end {
+  align-items: flex-end;
+}
+.items-stretch {
+  align-items: stretch;
+}
+
+.content-center {
+  align-content: center;
+}
+.content-start {
+  align-content: flex-start;
+}
+.content-end {
+  align-content: flex-end;
+}
+.content-stretch {
+  align-content: stretch;
+}
+.content-between {
+  align-content: space-between;
+}
+.content-around {
+  align-content: space-around;
+}
