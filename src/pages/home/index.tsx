@@ -10,7 +10,7 @@ const defaultConfig = {
 }
 
 const App: React.FC<Props> = props => {
-  const tableEmpty = [...Array(defaultConfig.size)].map((a, i) =>
+  const tableEmpty: Go.table = [...Array(defaultConfig.size)].map((a, i) =>
     [...Array(defaultConfig.size)].map((b, j) => null as Go.Cell)
   )
 
@@ -26,7 +26,8 @@ const App: React.FC<Props> = props => {
 
   const run = () => {}
 
-  const nextRoundPlayer = () => (gameState.cellCount % 2 === 0 ? gameConfig.firstPlayer : gameConfig.secondPlayer)
+  const nextRoundPlayer = () =>
+    gameState.cellCount % 2 === 0 ? gameConfig.firstPlayer : gameConfig.secondPlayer
   const isUserNextRound = () => nextRoundPlayer() === 'user'
   const anotherColor = (color: Go.Color) => (color === 'white' ? 'black' : 'white')
   const nextRoundColor = () =>
@@ -46,7 +47,9 @@ const App: React.FC<Props> = props => {
 
   const tips = {
     class: nextRoundColor() === gameConfig.firstColor ? 'left' : 'right',
-    text: `${nextRoundPlayer() === 'user' ? '玩家' : '电脑'}(${nextRoundColor() === 'black' ? '黑' : '白'}方)回合`
+    text: `${nextRoundPlayer() === 'user' ? '玩家' : '电脑'}(${
+      nextRoundColor() === 'black' ? '黑' : '白'
+    }方)回合`
   }
 
   return (
@@ -56,7 +59,12 @@ const App: React.FC<Props> = props => {
         <div className={`header ${tips.class}`}>
           <div className="tips">{tips.text}</div>
         </div>
-        <Stage table={table} isUserRound={isUserNextRound()} onUserSelect={onUserSelect} />
+        <Stage
+          nextColor={nextRoundColor()}
+          table={table}
+          isUserRound={isUserNextRound()}
+          onUserSelect={onUserSelect}
+        />
       </div>
     </div>
   )
