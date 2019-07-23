@@ -9,8 +9,8 @@ interface Props {
 }
 
 export default (props => {
-  const clickCell = (x: number, y: number, cell: any) => {
-    if (!cell && props.isUserRound) {
+  const clickCell = (x: number, y: number, cell: Go.Cell) => {
+    if (cell.isEmpty && props.isUserRound) {
       props.onUserSelect(x, y)
     }
   }
