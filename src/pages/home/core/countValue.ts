@@ -33,8 +33,6 @@ export function countValue(table: Go.table, x: number, y: number, color: Go.Colo
       .reverse()
       .join('')
   )
-  console.log(fourLineToString)
-  console.log(fourLineToStringReverse)
   const value = rules.reduce((v, curRule) => {
     const target = curRule.notReverse
       ? fourLineToString

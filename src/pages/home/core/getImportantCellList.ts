@@ -14,7 +14,6 @@ export function getImportantCellList(table: Go.table): Position[] {
   ;[...Array(maxDistance)].forEach((i, j) =>
     order.forEach(([offsetX, offsetY]) => offsetList.push([offsetX * (j + 1), offsetY * (j + 1)]))
   )
-  console.log(offsetList)
   table.forEach((line, lineIndex) => {
     line.forEach((cell, cellIndex) => {
       if (
@@ -27,6 +26,5 @@ export function getImportantCellList(table: Go.table): Position[] {
       }
     })
   })
-  console.log(result)
   return result.length ? result : [getCenterPosition(table)]
 }

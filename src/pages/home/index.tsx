@@ -10,6 +10,7 @@ const defaultConfig = {
   size: 19
 }
 let lastPosition: null | { x: number; y: number } = { x: 0, y: 0 }
+let lastMoveTime: null | number = null
 
 const App: React.FC<Props> = props => {
   const tableEmpty: Go.table = [...Array(defaultConfig.size)].map((a, i) =>
@@ -36,7 +37,9 @@ const App: React.FC<Props> = props => {
       return alert('over')
     }
     if (!isUserNextRound()) {
+      let start = Date.now()
       const position = move(table, nextRoundColor())
+      console.log(`AI: ${Date.now() - start}ms`)
       console.log(position)
       setCell(position.x, position.y, nextRoundColor())
       // check(position.x, position.y)
@@ -58,15 +61,19 @@ const App: React.FC<Props> = props => {
     }
   }
   const setCell = (x: number, y: number, color: Go.Color) => {
+    if (lastMoveTime) {
+      console.log('From last move: ' + (Date.now() - lastMoveTime))
+    }
+    lastMoveTime = Date.now()
     table[x][y] = { x, y, color }
     lastPosition = { x, y }
     setTable([...table])
     setGameState({ ...gameState, cellCount: gameState.cellCount + 1 })
   }
   useEffect(() => {
-    setTimeout(() => {
-      lastPosition && check(lastPosition.x, lastPosition.y)
-    }, 10)
+    // setTimeout(() => {
+    lastPosition && check(lastPosition.x, lastPosition.y)
+    // }, 10)
   }, [gameState])
 
   const tips = {
