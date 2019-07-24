@@ -11,7 +11,9 @@ export function move(table: Go.table, color: Go.Color): { x: number; y: number }
     y: position.y
   }))
   positionList.sort((a, b) =>
-    a.valueForSelf + a.valueForEnemy > b.valueForSelf + b.valueForEnemy ? -1 : 1
+    a.valueForSelf + a.valueForEnemy + Math.random() - 0.5 > b.valueForSelf + b.valueForEnemy
+      ? -1
+      : 1
   )
   return positionList[0]
 }

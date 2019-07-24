@@ -5,7 +5,7 @@ interface Position {
   y: number
 }
 
-const maxDistance = 1
+const maxDistance = 2
 const order = [[1, 0], [1, 1], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1]]
 
 export function getImportantCellList(table: Go.table): Position[] {

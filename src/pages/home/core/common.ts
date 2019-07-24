@@ -23,3 +23,14 @@ export function getCenterPosition(table: Go.table): { x: number; y: number } {
 }
 
 export const anotherColor = (color: Go.Color) => (color === 'white' ? 'black' : 'white')
+
+export const isFull = (table: Go.table) => {
+  for (let index = 0; index < table.length; index++) {
+    const line = table[index]
+    for (let i = 0; i < line.length; i++) {
+      const element = line[i]
+      if (element.isEmpty) return false
+    }
+  }
+  return true
+}
