@@ -4,7 +4,7 @@ import { isOver } from './core/checkOver'
 import { move } from './core/ai'
 import store from './store'
 import { observer } from 'mobx-react'
-import { sleep } from './core/common'
+import { sleep, untilRender } from './core/common'
 interface Props {
   title: string
   store: any
@@ -30,7 +30,11 @@ const App: React.FC<Props> = observer(props => {
   // const [table, setTable] = useState(tableEmpty)
   // const [gameState, setGameState] = useState({ cellCount: 0 })
 
-  const { table, setTable, gameConfig, setGameConfig, gameState, setGameState } = props.store
+  // const { table, setTable, gameConfig, setGameConfig, gameState, setGameState, pureTable } = props.store
+  const table: Go.table = props.store.pureTable
+  const gameConfig = props.store.gameConfig
+  const gameState = props.store.gameState
+  const stateTable = props.store.table
 
   const check = (x: number, y: number) => {
     const result = isOver({
@@ -73,22 +77,23 @@ const App: React.FC<Props> = observer(props => {
       console.log('From last move: ' + (Date.now() - lastMoveTime))
     }
     lastMoveTime = Date.now()
+    stateTable[x][y] = { x, y, color }
     table[x][y] = { x, y, color }
     lastPosition = { x, y }
     // setTable([...table])
     // setGameState({ ...gameState, cellCount: gameState.cellCount + 1 })
     gameState.cellCount += 1
-    // await sleep(100)
+    await untilRender()
     lastPosition && check(lastPosition.x, lastPosition.y)
   }
 
   // lastPosition && check(lastPosition.x, lastPosition.y)
 
-  useEffect(() => {
-    // setTimeout(() => {
-    lastPosition && check(lastPosition.x, lastPosition.y)
-    // }, 10)
-  }, [])
+  // useEffect(() => {
+  //   // setTimeout(() => {
+  //   lastPosition && check(lastPosition.x, lastPosition.y)
+  //   // }, 10)
+  // }, [])
 
   const tips = {
     class: nextRoundColor() === gameConfig.firstColor ? 'left' : 'right',
@@ -99,14 +104,21 @@ const App: React.FC<Props> = observer(props => {
 
   const clickCount = () => {
     console.log(gameState)
-    setGameState()
+    // setGameState()
     console.log(gameState)
+  }
+
+  const start = () => {
+    lastPosition && check(lastPosition.x, lastPosition.y)
   }
 
   return (
     <div className="main col-center">
       <div className="stage col">
-        <span onClick={() => clickCount()}>count: {gameState.cellCount}</span>
+        <div onClick={() => clickCount()}>count: {gameState.cellCount}</div>
+        <div className="row-center">
+          <button onClick={start}>开始</button>
+        </div>
         <div className={`header ${tips.class}`}>
           <div className="tips">{tips.text}</div>
         </div>
@@ -117,11 +129,11 @@ const App: React.FC<Props> = observer(props => {
           onUserSelect={onUserSelect}
         />
       </div>
-      <div className="log-list col">
+      {/* <div className="log-list col">
         {store.logs.map(i => (
           <span>{i}</span>
         ))}
-      </div>
+      </div> */}
     </div>
   )
 })

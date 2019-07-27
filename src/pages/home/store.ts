@@ -55,7 +55,7 @@ export default {
   gameState: state.gameState,
   gameConfig: state.gameConfig,
   logs: state.logs,
-  tableEmpty
+  pureTable: tableEmpty
   // setTable: action((newTable: Go.Cell[][]) => (state.table = newTable)),
   // setGameState: action(() => {
   //   console.log(state.gameState)
