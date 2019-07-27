@@ -1,3 +1,5 @@
+import { number } from 'prop-types'
+
 export function lineByFourDirection(table: Go.table, x: number, y: number) {
   const numberList = [...Array(9)].map((i, j) => j - 4)
   const offset = [
@@ -34,3 +36,5 @@ export const isFull = (table: Go.table) => {
   }
   return true
 }
+
+export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
