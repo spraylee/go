@@ -66,6 +66,8 @@
     display: flex;
     position: relative;
     z-index: 1;
+    justify-content: center;
+    align-items: center;
   }
   // .cell-inner.empty:hover {
   //   outline: 1px solid rgba(255, 0, 0, 0.582);
@@ -84,6 +86,21 @@
   }
   .cell-inner.empty:hover {
     opacity: 0.4;
+  }
+  .cell-inner .recommand {
+    width: 20%;
+    height: 20%;
+    flex: none;
+    border-radius: 50%;
+    background-color: rgba(255, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .cell-inner .recommand.important {
+    background-color: red;
   }
 }
 
@@ -104,4 +121,29 @@
 
 .main {
   height: 100vh;
+}
+
+.log-list {
+  height: 800px;
+  overflow: auto;
+  text-align: left;
+  width: 400px;
+}
+.opacity {
+  opacity: 0;
+}
+
+.control {
+  margin-left: 120px;
+  .control-item {
+    display: flex;
+    align-items: center;
+    > span {
+      margin-right: 15px;
+    }
+    margin-bottom: 20px;
+    &.margin-top {
+      margin-top: 60px;
+    }
+  }
 }

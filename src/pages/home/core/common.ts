@@ -39,4 +39,7 @@ export const isFull = (table: Go.table) => {
 
 export const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
-export const untilRender = () => new Promise(resolve => requestAnimationFrame(resolve))
+export const untilRender = () =>
+  new Promise(resolve => {
+    requestAnimationFrame(resolve)
+  })

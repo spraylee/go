@@ -2,7 +2,10 @@ import { countValue } from './countValue'
 import { getImportantCellList } from './getImportantCellList'
 import { anotherColor } from './common'
 
-export function move(table: Go.table, color: Go.Color): { x: number; y: number } {
+export function recommandMovement(
+  table: Go.table,
+  color: Go.Color
+): { x: number; y: number; order: number; valueForEnemy: number; valueForSelf: number }[] {
   const positionList = getImportantCellList(table).map(position => ({
     valueForSelf: countValue(table, position.x, position.y, color) * 1.1,
     valueForEnemy: countValue(table, position.x, position.y, anotherColor(color)),
@@ -15,5 +18,5 @@ export function move(table: Go.table, color: Go.Color): { x: number; y: number }
       ? -1
       : 1
   )
-  return positionList[0]
+  return positionList.map((i, j) => ({ ...i, order: j }))
 }

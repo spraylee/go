@@ -2,9 +2,9 @@ import React from 'react'
 import logo from './logo.svg'
 import './App.css'
 import HomePage from './pages/home/index'
-import store from './pages/home/store'
 
 import './styles/index'
+import store from './pages/home/store'
 
 const App: React.FC = () => {
   return (

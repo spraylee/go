@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import Stage from './stage'
 import { isOver } from './core/checkOver'
-import { move } from './core/ai'
-import store from './store'
+import { recommandMovement } from './core/ai'
+import store, {
+  createEmptyTable,
+  getPureTable,
+  setTableCell,
+  restart,
+  setUserRoundTips,
+  selectGameMode,
+  GameModeType
+} from './store'
 import { observer } from 'mobx-react'
 import { sleep, untilRender } from './core/common'
+import { Button, Switch, Select, Modal } from 'antd'
+
 interface Props {
   title: string
   store: any
@@ -17,56 +27,67 @@ let lastPosition: null | { x: number; y: number } = { x: 0, y: 0 }
 let lastMoveTime: null | number = null
 
 const App: React.FC<Props> = observer(props => {
-  // const tableEmpty: Go.table = [...Array(defaultConfig.size)].map((a, i) =>
-  //   [...Array(defaultConfig.size)].map((b, j) => ({ x: i, y: j, isEmpty: true } as Go.Cell))
-  // )
-  // const [gameConfig, setGameConfig] = useState({
-  //   size: defaultConfig.size,
-  //   firstColor: 'white' as Go.Color,
-  //   firstPlayer: 'ai' as Go.PlayerType,
-  //   secondPlayer: 'ai' as Go.PlayerType
-  // })
+  // const table: Go.table = store.pureTable
+  // const gameConfig = store.gameConfig
+  // const gameState = store.gameState
+  // const stateTable = store.table
 
-  // const [table, setTable] = useState(tableEmpty)
-  // const [gameState, setGameState] = useState({ cellCount: 0 })
-
-  // const { table, setTable, gameConfig, setGameConfig, gameState, setGameState, pureTable } = props.store
-  const table: Go.table = props.store.pureTable
-  const gameConfig = props.store.gameConfig
-  const gameState = props.store.gameState
-  const stateTable = props.store.table
-
-  const check = (x: number, y: number) => {
+  const check = async (x: number, y: number) => {
     const result = isOver({
-      table: table,
+      table: getPureTable(),
       lastX: x,
       lastY: y,
-      firstColor: gameConfig.firstColor
+      firstColor: store.gameConfig.firstColor
     })
     if (result.isOver) {
-      return alert('over')
+      await untilRender()
+      store.isActive = false
+      return Modal.info({
+        title: '游戏结束',
+        centered: true,
+        content: (
+          <div>
+            <p>{result.winColor === 'black' ? '黑棋' : '白棋'}获胜</p>
+          </div>
+        ),
+        onOk() {}
+      })
     }
     if (!isUserNextRound()) {
+      setUserRoundTips([])
       let start = Date.now()
-      const position = move(table, nextRoundColor())
+      const position = recommandMovement(getPureTable(), nextRoundColor())[0]
       console.log(`AI: ${Date.now() - start}ms`)
       store.logs.push(`AI: ${Date.now() - start}ms`)
       console.log(position)
       setCell(position.x, position.y, nextRoundColor())
-      // check(position.x, position.y)
+    } else if (store.gameState.isShowRecommand) {
+      getRecommand()
+    }
+  }
+
+  const getRecommand = () => {
+    if (isUserNextRound() && store.gameState.isShowRecommand) {
+      const recommandList = recommandMovement(getPureTable(), nextRoundColor())
+      setUserRoundTips(recommandList)
+    } else {
+      setUserRoundTips([])
     }
   }
 
   const nextRoundPlayer = () =>
-    gameState.cellCount % 2 === 0 ? gameConfig.firstPlayer : gameConfig.secondPlayer
+    store.gameState.cellCount % 2 === 0
+      ? store.gameConfig.firstPlayer
+      : store.gameConfig.secondPlayer
   const isUserNextRound = () => nextRoundPlayer() === 'user'
   const anotherColor = (color: Go.Color) => (color === 'white' ? 'black' : 'white')
   const nextRoundColor = () =>
-    gameState.cellCount % 2 === 0 ? gameConfig.firstColor : anotherColor(gameConfig.firstColor)
+    store.gameState.cellCount % 2 === 0
+      ? store.gameConfig.firstColor
+      : anotherColor(store.gameConfig.firstColor)
   const onUserSelect = (x: number, y: number) => {
-    if (isUserNextRound() && table[x][y].isEmpty) {
+    if (isUserNextRound() && store.table[x][y].isEmpty) {
       setCell(x, y, nextRoundColor())
-      // check(x, y)
     } else {
       throw new Error('not allowed action')
     }
@@ -77,63 +98,84 @@ const App: React.FC<Props> = observer(props => {
       console.log('From last move: ' + (Date.now() - lastMoveTime))
     }
     lastMoveTime = Date.now()
-    stateTable[x][y] = { x, y, color }
-    table[x][y] = { x, y, color }
+    setTableCell(x, y, color)
     lastPosition = { x, y }
-    // setTable([...table])
-    // setGameState({ ...gameState, cellCount: gameState.cellCount + 1 })
-    gameState.cellCount += 1
     await untilRender()
+    // await sleep(10)
     lastPosition && check(lastPosition.x, lastPosition.y)
   }
 
-  // lastPosition && check(lastPosition.x, lastPosition.y)
-
-  // useEffect(() => {
-  //   // setTimeout(() => {
-  //   lastPosition && check(lastPosition.x, lastPosition.y)
-  //   // }, 10)
-  // }, [])
-
   const tips = {
-    class: nextRoundColor() === gameConfig.firstColor ? 'left' : 'right',
+    class: nextRoundColor() === store.gameConfig.firstColor ? 'left' : 'right',
     text: `${nextRoundPlayer() === 'user' ? '玩家' : '电脑'}(${
       nextRoundColor() === 'black' ? '黑' : '白'
     }方)回合`
   }
 
-  const clickCount = () => {
-    console.log(gameState)
-    // setGameState()
-    console.log(gameState)
-  }
-
   const start = () => {
+    // store.start()
+    restart()
+    // store.table = createEmptyTable()
+    // store.pureTable = createEmptyTable()
     lastPosition && check(lastPosition.x, lastPosition.y)
   }
 
   return (
     <div className="main col-center">
       <div className="stage col">
-        <div onClick={() => clickCount()}>count: {gameState.cellCount}</div>
-        <div className="row-center">
-          <button onClick={start}>开始</button>
+        {/* <div className="row-center">
+          <Button onClick={start}>开始</Button>
+        </div> */}
+        <div className="row">
+          <div>
+            <div className={`header ${tips.class}`}>
+              <div className={`tips ${!store.isActive && 'opacity'}`}>{tips.text}</div>
+            </div>
+            <Stage
+              isActive={store.isActive}
+              nextColor={nextRoundColor()}
+              table={store.table}
+              isUserRound={isUserNextRound()}
+              onUserSelect={onUserSelect}
+              userRoundTips={store.userRoundTips}
+            />
+          </div>
+          {/* <div className="log-list">
+            {store.logs.map((i, j) => (
+              <div key={j}>{i}</div>
+            ))}
+          </div> */}
+          <div className="control">
+            <div className="control-item">
+              <span>关键提示</span>
+              <Switch
+                checked={store.gameState.isShowRecommand}
+                onChange={v => {
+                  store.gameState.isShowRecommand = v
+                  getRecommand()
+                }}
+              />
+            </div>
+            <div className="control-item">
+              <span>对弈模式 </span>
+              <Select
+                style={{ width: 120 }}
+                value={store.gameConfig.mode}
+                onChange={(v: GameModeType) => selectGameMode(v)}
+              >
+                {store.gameConfig.gameModeList.map(mode => (
+                  <Select.Option title={mode.label} value={mode.value} key={mode.value}>
+                    {mode.label}
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+            <div className="control-item row-center margin-top">
+              <Button onClick={start}>开始</Button>
+            </div>
+          </div>
         </div>
-        <div className={`header ${tips.class}`}>
-          <div className="tips">{tips.text}</div>
-        </div>
-        <Stage
-          nextColor={nextRoundColor()}
-          table={table}
-          isUserRound={isUserNextRound()}
-          onUserSelect={onUserSelect}
-        />
       </div>
-      {/* <div className="log-list col">
-        {store.logs.map(i => (
-          <span>{i}</span>
-        ))}
-      </div> */}
     </div>
   )
 })
