@@ -1,0 +1,9 @@
+module.exports = {
+  spraylee: {
+    host: 'spraylee.com',
+    username: 'ubuntu',
+    password: 'fZjK5zTgADY',
+    remoteDir: '/home/www/go',
+    distPath: '../build'
+  }
+}

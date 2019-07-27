@@ -78,30 +78,3 @@ export const selectGameMode = (modeValue: GameModeType) => {
   store.gameConfig.mode = modeValue
   restart()
 }
-
-// export default {
-//   table: state.table,
-//   gameState: state.gameState,
-//   gameConfig: state.gameConfig,
-//   logs: state.logs,
-//   pureTable: pureTable,
-
-//   start: action(() => {
-//     pureTable = createEmptyTable()
-//     state.table = createEmptyTable()
-//   })
-//   // setTable: action((newTable: Go.Cell[][]) => (state.table = newTable)),
-//   // setGameState: action(() => {
-//   //   console.log(state.gameState)
-//   //   state.gameState.cellCount += 1
-//   //   console.log(state.gameState)
-//   // }),
-//   // setGameConfig: action(
-//   //   (newConfig: {
-//   //     size: number
-//   //     firstColor: Go.Color
-//   //     firstPlayer: Go.PlayerType
-//   //     secondPlayer: Go.PlayerType
-//   //   }) => (state.gameConfig = newConfig)
-//   // )
-// }

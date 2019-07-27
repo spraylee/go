@@ -42,12 +42,22 @@ const App: React.FC<Props> = observer(props => {
     if (result.isOver) {
       await untilRender()
       store.isActive = false
+      let overMessage = ''
+      if (store.gameConfig.mode === 'AI' && !isUserNextRound()) {
+        overMessage = store.gameState.isShowRecommand ? '你侥幸击败了简单电脑' : '你击败了简单电脑'
+      } else if (store.gameConfig.mode === 'AI' && isUserNextRound()) {
+        overMessage = '你居然输给了简单电脑，菜鸡...'
+      } else if (result.winColor) {
+        overMessage = `${result.winColor === 'black' ? '黑棋' : '白棋'}获胜`
+      } else {
+        overMessage = `棋盘都占满了，未分出胜负`
+      }
       return Modal.info({
         title: '游戏结束',
         centered: true,
         content: (
           <div>
-            <p>{result.winColor === 'black' ? '黑棋' : '白棋'}获胜</p>
+            <p>{overMessage}</p>
           </div>
         ),
         onOk() {}
@@ -67,7 +77,7 @@ const App: React.FC<Props> = observer(props => {
   }
 
   const getRecommand = () => {
-    if (isUserNextRound() && store.gameState.isShowRecommand) {
+    if (isUserNextRound() && store.gameState.isShowRecommand && store.gameConfig.mode !== 'AI|AI') {
       const recommandList = recommandMovement(getPureTable(), nextRoundColor())
       setUserRoundTips(recommandList)
     } else {
@@ -100,6 +110,9 @@ const App: React.FC<Props> = observer(props => {
     lastMoveTime = Date.now()
     setTableCell(x, y, color)
     lastPosition = { x, y }
+    if (store.gameConfig.mode === 'AI') {
+      await sleep(200)
+    }
     await untilRender()
     // await sleep(10)
     lastPosition && check(lastPosition.x, lastPosition.y)
@@ -109,7 +122,7 @@ const App: React.FC<Props> = observer(props => {
     class: nextRoundColor() === store.gameConfig.firstColor ? 'left' : 'right',
     text: `${nextRoundPlayer() === 'user' ? '玩家' : '电脑'}(${
       nextRoundColor() === 'black' ? '黑' : '白'
-    }方)回合`
+    }棋)回合`
   }
 
   const start = () => {
@@ -129,7 +142,12 @@ const App: React.FC<Props> = observer(props => {
         <div className="row">
           <div>
             <div className={`header ${tips.class}`}>
-              <div className={`tips ${!store.isActive && 'opacity'}`}>{tips.text}</div>
+              <div
+                className={`tips ${(!store.isActive || store.gameConfig.mode === 'AI|AI') &&
+                  'opacity'}`}
+              >
+                {tips.text}
+              </div>
             </div>
             <Stage
               isActive={store.isActive}
@@ -147,8 +165,9 @@ const App: React.FC<Props> = observer(props => {
           </div> */}
           <div className="control">
             <div className="control-item">
-              <span>关键提示</span>
+              <span>危险提示</span>
               <Switch
+                disabled={store.gameConfig.mode === 'AI|AI'}
                 checked={store.gameState.isShowRecommand}
                 onChange={v => {
                   store.gameState.isShowRecommand = v

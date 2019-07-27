@@ -28,7 +28,7 @@ export default (props => {
           <span
             className={`recommand ${isImporant && 'important'}`}
             style={{ width: `${size}%`, height: `${size}%` }}
-            title={`valueForEnemy: ${match.valueForEnemy}`}
+            title={`danger: ${match.valueForEnemy}`}
           >
             {/* {isImporant && match.valueForEnemy} */}
           </span>
