@@ -65,6 +65,10 @@ const App: React.FC<Props> = observer(props => {
     }
     if (!isUserNextRound()) {
       setUserRoundTips([])
+      if (store.gameConfig.mode === 'AI') {
+        await sleep(200)
+      }
+      await untilRender()
       let start = Date.now()
       const position = recommandMovement(getPureTable(), nextRoundColor())[0]
       console.log(`AI: ${Date.now() - start}ms`)
@@ -110,11 +114,6 @@ const App: React.FC<Props> = observer(props => {
     lastMoveTime = Date.now()
     setTableCell(x, y, color)
     lastPosition = { x, y }
-    if (store.gameConfig.mode === 'AI') {
-      await sleep(200)
-    }
-    await untilRender()
-    // await sleep(10)
     lastPosition && check(lastPosition.x, lastPosition.y)
   }
 
