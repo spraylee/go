@@ -2,19 +2,10 @@ import { Button, Modal, Select, Switch } from 'antd'
 import { observer } from 'mobx-react'
 import React from 'react'
 import { recommandMovement } from './core/ai'
-import { isOver } from './core/checkOver'
+import store, { createEmptyTable, GameModeType } from './store'
 import { sleep, untilRender } from './core/common'
 import Stage from './stage'
-import store, {
-  disableTable,
-  GameModeType,
-  getPureTable,
-  pushLog,
-  restart,
-  selectGameMode,
-  setTableCell,
-  setUserRoundTips
-} from './store'
+import { isOver } from './core/checkOver'
 
 interface Props {
   title: string
@@ -35,14 +26,14 @@ const App: React.FC<Props> = observer((props: Props) => {
 
   const check = async (x: number, y: number) => {
     const result = isOver({
-      table: getPureTable(),
+      table: store.pureTable,
       lastX: x,
       lastY: y,
       firstColor: store.gameConfig.firstColor
     })
     if (result.isOver) {
       await untilRender()
-      disableTable()
+      store.disableTable()
       let overMessage = ''
       if (store.gameConfig.mode === 'AI' && !isUserNextRound()) {
         overMessage = store.gameState.isShowRecommand ? '你侥幸击败了简单电脑' : '你击败了简单电脑'
@@ -65,15 +56,15 @@ const App: React.FC<Props> = observer((props: Props) => {
       })
     }
     if (!isUserNextRound()) {
-      setUserRoundTips([])
+      store.setUserRoundTips([])
       if (store.gameConfig.mode === 'AI') {
         await sleep(200)
       }
       await untilRender()
       let start = Date.now()
-      const position = recommandMovement(getPureTable(), nextRoundColor())[0]
+      const position = recommandMovement(store.pureTable, nextRoundColor())[0]
       console.log(`AI: ${Date.now() - start}ms`)
-      pushLog(`AI: ${Date.now() - start}ms`)
+      store.pushLog(`AI: ${Date.now() - start}ms`)
       console.log(position)
       setCell(position.x, position.y, nextRoundColor())
     } else if (store.gameState.isShowRecommand) {
@@ -83,10 +74,10 @@ const App: React.FC<Props> = observer((props: Props) => {
 
   const getRecommand = () => {
     if (isUserNextRound() && store.gameState.isShowRecommand && store.gameConfig.mode !== 'AI|AI') {
-      const recommandList = recommandMovement(getPureTable(), nextRoundColor())
-      setUserRoundTips(recommandList)
+      const recommandList = recommandMovement(store.pureTable, nextRoundColor())
+      store.setUserRoundTips(recommandList)
     } else {
-      setUserRoundTips([])
+      store.setUserRoundTips([])
     }
   }
 
@@ -109,11 +100,11 @@ const App: React.FC<Props> = observer((props: Props) => {
   }
   const setCell = async (x: number, y: number, color: Go.Color) => {
     if (lastMoveTime) {
-      pushLog('From last move: ' + (Date.now() - lastMoveTime))
+      store.pushLog('From last move: ' + (Date.now() - lastMoveTime))
       console.log('From last move: ' + (Date.now() - lastMoveTime))
     }
     lastMoveTime = Date.now()
-    setTableCell(x, y, color)
+    store.setTableCell(x, y, color)
     lastPosition = { x, y }
     lastPosition && check(lastPosition.x, lastPosition.y)
   }
@@ -127,7 +118,7 @@ const App: React.FC<Props> = observer((props: Props) => {
 
   const start = () => {
     // store.start()
-    restart()
+    store.restart()
     // store.table = createEmptyTable()
     // store.pureTable = createEmptyTable()
     lastPosition && check(lastPosition.x, lastPosition.y)
@@ -180,7 +171,7 @@ const App: React.FC<Props> = observer((props: Props) => {
               <Select
                 style={{ width: 120 }}
                 value={store.gameConfig.mode}
-                onChange={(v: GameModeType) => selectGameMode(v)}
+                onChange={(v: GameModeType) => store.selectGameMode(v)}
               >
                 {store.gameConfig.gameModeList.map(mode => (
                   <Select.Option title={mode.label} value={mode.value} key={mode.value}>

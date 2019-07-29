@@ -15,8 +15,6 @@ export const createEmptyTable = () =>
     [...Array(defaultConfig.size)].map((b, j) => ({ x: i, y: j, isEmpty: true } as Go.Cell))
   )
 
-let pureTable = createEmptyTable()
-
 export type GameModeType = 'AI' | 'FREE' | 'AI|AI'
 type GameMode = { label: string; value: GameModeType }
 const gameModeList: GameMode[] = [
@@ -25,69 +23,68 @@ const gameModeList: GameMode[] = [
   { label: '电脑打架', value: 'AI|AI' }
 ]
 
-const store = observable({
-  table: createEmptyTable(),
-  gameState: {
+class Store {
+  pureTable = createEmptyTable()
+
+  @observable table: Go.table = createEmptyTable()
+  @observable gameState = {
     cellCount: 0,
     isShowRecommand: true,
     test: { a: 1 }
-  },
-  gameConfig: {
+  }
+  @observable gameConfig = {
     size: defaultConfig.size,
     firstColor: 'white' as Go.Color,
     firstPlayer: 'user' as Go.PlayerType,
     secondPlayer: 'ai' as Go.PlayerType,
     mode: gameModeList[0].value,
     gameModeList
-  },
-  logs: ['log: '] as string[],
-  userRoundTips: [] as UserRoundTipList,
-  isActive: true
-})
-
-export default store
-
-export const getPureTable = () => {
-  return pureTable
-}
-export const setTableCell = action((x: number, y: number, color: Go.Color) => {
-  pureTable[x][y] = { x, y, color }
-  store.table[x][y] = { x, y, color }
-  store.gameState.cellCount += 1
-})
-
-export const restart = action(() => {
-  setUserRoundTips([])
-  store.isActive = true
-  pureTable = createEmptyTable()
-  store.gameState.cellCount = 0
-  store.table = createEmptyTable()
-})
-
-export const setUserRoundTips = action(
-  (list: { x: number; y: number; order: number; valueForEnemy: number }[]) =>
-    (store.userRoundTips = list)
-)
-
-export const selectGameMode = action((modeValue: GameModeType) => {
-  if (modeValue === 'AI') {
-    store.gameConfig.firstPlayer = 'user'
-    store.gameConfig.secondPlayer = 'ai'
-  } else if (modeValue === 'FREE') {
-    store.gameConfig.firstPlayer = 'user'
-    store.gameConfig.secondPlayer = 'user'
-  } else if (modeValue === 'AI|AI') {
-    store.gameConfig.firstPlayer = 'ai'
-    store.gameConfig.secondPlayer = 'ai'
   }
-  store.gameConfig.mode = modeValue
-  restart()
-})
+  @observable logs: string[] = ['logs: ']
+  @observable userRoundTips: UserRoundTipList = []
+  @observable isActive: boolean = true
 
-export const pushLog = action((str: string) => {
-  store.logs.push(str)
-})
+  @action
+  setTableCell(x: number, y: number, color: Go.Color) {
+    this.pureTable[x][y] = { x, y, color }
+    this.table[x][y] = { x, y, color }
+    this.gameState.cellCount += 1
+  }
+  @action
+  restart() {
+    this.setUserRoundTips([])
+    this.isActive = true
+    this.pureTable = createEmptyTable()
+    this.gameState.cellCount = 0
+    this.table = createEmptyTable()
+  }
+  @action
+  setUserRoundTips(list: UserRoundTipList) {
+    this.userRoundTips = list
+  }
+  @action
+  selectGameMode(modeValue: GameModeType) {
+    if (modeValue === 'AI') {
+      this.gameConfig.firstPlayer = 'user'
+      this.gameConfig.secondPlayer = 'ai'
+    } else if (modeValue === 'FREE') {
+      this.gameConfig.firstPlayer = 'user'
+      this.gameConfig.secondPlayer = 'user'
+    } else if (modeValue === 'AI|AI') {
+      this.gameConfig.firstPlayer = 'ai'
+      this.gameConfig.secondPlayer = 'ai'
+    }
+    this.gameConfig.mode = modeValue
+    this.restart()
+  }
+  @action
+  disableTable() {
+    this.isActive = false
+  }
+  @action
+  pushLog(str: string) {
+    this.logs.push(str)
+  }
+}
 
-export const disableTable = action(() => {
-  store.isActive = false
-})
+export default new Store()
