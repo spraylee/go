@@ -2,15 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Stage from './stage'
 import { isOver } from './core/checkOver'
 import { recommandMovement } from './core/ai'
-import store, {
-  createEmptyTable,
-  getPureTable,
-  setTableCell,
-  restart,
-  setUserRoundTips,
-  selectGameMode,
-  GameModeType
-} from './store'
+import store, { createEmptyTable, GameModeType } from './store'
 import { observer } from 'mobx-react'
 import { sleep, untilRender } from './core/common'
 import { Button, Switch, Select, Modal } from 'antd'
@@ -34,7 +26,7 @@ const App: React.FC<Props> = observer(props => {
 
   const check = async (x: number, y: number) => {
     const result = isOver({
-      table: getPureTable(),
+      table: store.pureTable,
       lastX: x,
       lastY: y,
       firstColor: store.gameConfig.firstColor
@@ -64,13 +56,13 @@ const App: React.FC<Props> = observer(props => {
       })
     }
     if (!isUserNextRound()) {
-      setUserRoundTips([])
+      store.setUserRoundTips([])
       if (store.gameConfig.mode === 'AI') {
         await sleep(200)
       }
       await untilRender()
       let start = Date.now()
-      const position = recommandMovement(getPureTable(), nextRoundColor())[0]
+      const position = recommandMovement(store.pureTable, nextRoundColor())[0]
       console.log(`AI: ${Date.now() - start}ms`)
       store.logs.push(`AI: ${Date.now() - start}ms`)
       console.log(position)
@@ -82,10 +74,10 @@ const App: React.FC<Props> = observer(props => {
 
   const getRecommand = () => {
     if (isUserNextRound() && store.gameState.isShowRecommand && store.gameConfig.mode !== 'AI|AI') {
-      const recommandList = recommandMovement(getPureTable(), nextRoundColor())
-      setUserRoundTips(recommandList)
+      const recommandList = recommandMovement(store.pureTable, nextRoundColor())
+      store.setUserRoundTips(recommandList)
     } else {
-      setUserRoundTips([])
+      store.setUserRoundTips([])
     }
   }
 
@@ -112,7 +104,7 @@ const App: React.FC<Props> = observer(props => {
       console.log('From last move: ' + (Date.now() - lastMoveTime))
     }
     lastMoveTime = Date.now()
-    setTableCell(x, y, color)
+    store.setTableCell(x, y, color)
     lastPosition = { x, y }
     lastPosition && check(lastPosition.x, lastPosition.y)
   }
@@ -126,7 +118,7 @@ const App: React.FC<Props> = observer(props => {
 
   const start = () => {
     // store.start()
-    restart()
+    store.restart()
     // store.table = createEmptyTable()
     // store.pureTable = createEmptyTable()
     lastPosition && check(lastPosition.x, lastPosition.y)
@@ -179,7 +171,7 @@ const App: React.FC<Props> = observer(props => {
               <Select
                 style={{ width: 120 }}
                 value={store.gameConfig.mode}
-                onChange={(v: GameModeType) => selectGameMode(v)}
+                onChange={(v: GameModeType) => store.selectGameMode(v)}
               >
                 {store.gameConfig.gameModeList.map(mode => (
                   <Select.Option title={mode.label} value={mode.value} key={mode.value}>
