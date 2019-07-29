@@ -24,8 +24,10 @@ const gameModeList: GameMode[] = [
 ]
 
 class Store {
-  pureTable = createEmptyTable()
-
+  private _pureTable = createEmptyTable()
+  get pureTable() {
+    return this._pureTable
+  }
   @observable table: Go.table = createEmptyTable()
   @observable gameState = {
     cellCount: 0,
@@ -54,7 +56,7 @@ class Store {
   restart() {
     this.setUserRoundTips([])
     this.isActive = true
-    this.pureTable = createEmptyTable()
+    this._pureTable = createEmptyTable()
     this.gameState.cellCount = 0
     this.table = createEmptyTable()
   }
