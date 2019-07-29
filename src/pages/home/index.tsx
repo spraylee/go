@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from 'react'
-import Stage from './stage'
-import { isOver } from './core/checkOver'
-import { recommandMovement } from './core/ai'
-import store, {
-  createEmptyTable,
-  getPureTable,
-  setTableCell,
-  restart,
-  setUserRoundTips,
-  selectGameMode,
-  GameModeType
-} from './store'
+import { Button, Modal, Select, Switch } from 'antd'
 import { observer } from 'mobx-react'
+import React from 'react'
+import { recommandMovement } from './core/ai'
+import { isOver } from './core/checkOver'
 import { sleep, untilRender } from './core/common'
-import { Button, Switch, Select, Modal } from 'antd'
+import Stage from './stage'
+import store, {
+  disableTable,
+  GameModeType,
+  getPureTable,
+  pushLog,
+  restart,
+  selectGameMode,
+  setTableCell,
+  setUserRoundTips
+} from './store'
 
 interface Props {
   title: string
@@ -26,7 +27,7 @@ const defaultConfig = {
 let lastPosition: null | { x: number; y: number } = { x: 0, y: 0 }
 let lastMoveTime: null | number = null
 
-const App: React.FC<Props> = observer(props => {
+const App: React.FC<Props> = observer((props: Props) => {
   // const table: Go.table = store.pureTable
   // const gameConfig = store.gameConfig
   // const gameState = store.gameState
@@ -41,7 +42,7 @@ const App: React.FC<Props> = observer(props => {
     })
     if (result.isOver) {
       await untilRender()
-      store.isActive = false
+      disableTable()
       let overMessage = ''
       if (store.gameConfig.mode === 'AI' && !isUserNextRound()) {
         overMessage = store.gameState.isShowRecommand ? '你侥幸击败了简单电脑' : '你击败了简单电脑'
@@ -72,7 +73,7 @@ const App: React.FC<Props> = observer(props => {
       let start = Date.now()
       const position = recommandMovement(getPureTable(), nextRoundColor())[0]
       console.log(`AI: ${Date.now() - start}ms`)
-      store.logs.push(`AI: ${Date.now() - start}ms`)
+      pushLog(`AI: ${Date.now() - start}ms`)
       console.log(position)
       setCell(position.x, position.y, nextRoundColor())
     } else if (store.gameState.isShowRecommand) {
@@ -108,7 +109,7 @@ const App: React.FC<Props> = observer(props => {
   }
   const setCell = async (x: number, y: number, color: Go.Color) => {
     if (lastMoveTime) {
-      store.logs.push('From last move: ' + (Date.now() - lastMoveTime))
+      pushLog('From last move: ' + (Date.now() - lastMoveTime))
       console.log('From last move: ' + (Date.now() - lastMoveTime))
     }
     lastMoveTime = Date.now()

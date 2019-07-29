@@ -1,4 +1,8 @@
-import { observable, action, getObserverTree } from 'mobx'
+import { observable, action, configure } from 'mobx'
+
+configure({
+  enforceActions: 'always'
+})
 
 type UserRoundTipList = { x: number; y: number; order: number; valueForEnemy: number }[]
 
@@ -46,25 +50,26 @@ export default store
 export const getPureTable = () => {
   return pureTable
 }
-export const setTableCell = (x: number, y: number, color: Go.Color) => {
+export const setTableCell = action((x: number, y: number, color: Go.Color) => {
   pureTable[x][y] = { x, y, color }
   store.table[x][y] = { x, y, color }
   store.gameState.cellCount += 1
-}
+})
 
-export const restart = () => {
+export const restart = action(() => {
   setUserRoundTips([])
   store.isActive = true
   pureTable = createEmptyTable()
   store.gameState.cellCount = 0
   store.table = createEmptyTable()
-}
+})
 
-export const setUserRoundTips = (
-  list: { x: number; y: number; order: number; valueForEnemy: number }[]
-) => (store.userRoundTips = list)
+export const setUserRoundTips = action(
+  (list: { x: number; y: number; order: number; valueForEnemy: number }[]) =>
+    (store.userRoundTips = list)
+)
 
-export const selectGameMode = (modeValue: GameModeType) => {
+export const selectGameMode = action((modeValue: GameModeType) => {
   if (modeValue === 'AI') {
     store.gameConfig.firstPlayer = 'user'
     store.gameConfig.secondPlayer = 'ai'
@@ -77,4 +82,12 @@ export const selectGameMode = (modeValue: GameModeType) => {
   }
   store.gameConfig.mode = modeValue
   restart()
-}
+})
+
+export const pushLog = action((str: string) => {
+  store.logs.push(str)
+})
+
+export const disableTable = action(() => {
+  store.isActive = false
+})

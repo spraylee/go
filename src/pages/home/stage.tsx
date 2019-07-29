@@ -1,6 +1,6 @@
 import React from 'react'
-
 import './stage.less'
+
 interface Props {
   table: Go.Cell[][]
   isUserRound: boolean
@@ -47,6 +47,20 @@ export default (props => {
               }`}
               key={i}
             >
+              {/* {line.map((cell, j) => {
+                const className = `cell col-center ${j === 0 ? 'first' : ''} ${
+                  j === props.table.length - 1 ? 'last' : ''
+                }`
+                return (
+                  <Cell
+                    className={className}
+                    tips={getTips(cell)}
+                    cell={cell}
+                    key={j}
+                    onClick={() => clickCell(i, j, cell)}
+                  />
+                )
+              })} */}
               {line.map((cell, j) => (
                 <div
                   className={`cell col-center ${j === 0 ? 'first' : ''} ${
@@ -69,3 +83,22 @@ export default (props => {
     </div>
   )
 }) as React.FC<Props>
+
+type CellProps = {
+  cell: Go.Cell
+  onClick: () => void
+  tips: false | JSX.Element | undefined
+  className: string
+}
+const Cell: React.FC<CellProps> = (props: CellProps) => {
+  return (
+    <div className={props.className}>
+      <div
+        className={`cell-inner ${props.cell && props.cell.color} ${!props.cell ? 'empty' : ''}`}
+        onClick={props.onClick}
+      >
+        {props.tips}
+      </div>
+    </div>
+  )
+}
