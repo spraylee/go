@@ -1,3 +1,5 @@
+import { EasyAI } from './AiPlayer'
+
 export type ColorType = 'white' | 'black'
 
 export class Color {
@@ -30,6 +32,18 @@ export class Cell {
   }
 }
 
+export type PlayerType = 'AI' | 'USER'
+export class UserPlayer {
+  name: string
+  type: PlayerType = 'USER'
+  color: ColorType
+  constructor(color: ColorType, name = '') {
+    this.name = name
+    this.color = color
+  }
+}
+
+type Player = EasyAI | UserPlayer
 export class Table {
   private content: Cell[][]
   firstColor: ColorType
@@ -38,28 +52,27 @@ export class Table {
   isFull: boolean = false
   isOver: boolean = false
   winColor: ColorType | null = null
-  firstPlayer: string
-  secondPlyer: string
-  constructor(
-    size: number,
-    firstColor: ColorType = 'white',
-    firstPlayer: string,
-    secondPlayer: string
-  ) {
+  firstPlayer: Player | null = null
+  secondPlyer: Player | null = null
+  constructor(size: number, firstColor: ColorType = 'white') {
     this.size = size
     this.firstColor = firstColor
-    this.firstPlayer = firstPlayer
-    this.secondPlyer = secondPlayer
     this.content = Table.createEmtpyTableContent(size)
+  }
+  setPlayer(first: EasyAI | UserPlayer | null, second: EasyAI | UserPlayer | null) {
+    this.firstPlayer = first
+    this.secondPlyer = second
   }
   getNextColor() {
     const last = this.getLastMove()
     return last && last.color ? Color.anotherColor(last.color) : this.firstColor
   }
-  getNextPlayer() {
+  getNextPlayer(): Player {
+    if (!this.firstPlayer || !this.secondPlyer) throw Error('player is not set')
     return this.getNextColor() === this.firstColor ? this.firstPlayer : this.secondPlyer
   }
   setCell(x: number, y: number) {
+    if (!this.isInTable(x, y)) throw Error(`x:${x} y:${y} is not a table`)
     if (!this.getCell(x, y).isEmpty) throw Error(`cannot set cell, cell is not empty: ${x} ${y}`)
     this.getCell(x, y).set(this.getNextColor())
     this.history.push(this.getCell(x, y))
@@ -80,13 +93,19 @@ export class Table {
   getLastMove() {
     return this.history[this.history.length - 1]
   }
+  isInTable(x: number, y: number) {
+    return x >= 0 && x < this.size && y >= 0 && y < this.size
+  }
   getCell(x: number, y: number) {
+    if (!this.isInTable(x, y)) throw Error(`x:${x} y:${y} is not a table`)
     return this.content[x][y]
   }
   checkIsOver() {
     const fourLine = this.lineByFourDirectionAboutLastMove()
     const fourLineToString = fourLine.map(line =>
-      line.map(cell => (cell.isEmpty ? '_' : cell.color === 'white' ? 'W' : 'B')).join('')
+      line
+        .map(cell => (!cell ? 'X' : cell.isEmpty ? '_' : cell.color === 'white' ? 'W' : 'B'))
+        .join('')
     )
     if (fourLineToString.find(str => str.match(/WWWWW/))) {
       this.isOver = true
@@ -121,10 +140,7 @@ export class Table {
   private static createEmtpyTableContent(size: number) {
     return [...Array(size)].map((a, i) => [...Array(size)].map((b, j) => new Cell(i, j)))
   }
-  private lineByFourDirectionAboutLastMove() {
-    const last = this.getLastMove()
-    if (!last) throw 'table is new'
-
+  lineByFourDirection(x: number, y: number) {
     const numberList = [...Array(9)].map((i, j) => j - 4)
     const offset = [
       numberList.map(i => [i, 0]),
@@ -132,7 +148,14 @@ export class Table {
       numberList.map(i => [i, -i]),
       numberList.map(i => [0, i])
     ]
-    return offset.map(line => line.map(([i, j]) => this.getCell(last.x + i, last.y + j)))
+    return offset.map(line =>
+      line.map(([i, j]) => (!this.isInTable(x + i, y + j) ? null : this.getCell(x + i, y + j)))
+    )
+  }
+  lineByFourDirectionAboutLastMove() {
+    const last = this.getLastMove()
+    if (!last) throw 'table is new'
+    return this.lineByFourDirection(last.x, last.y)
   }
 }
 

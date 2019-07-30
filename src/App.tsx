@@ -1,7 +1,7 @@
 import React from 'react'
 import logo from './logo.svg'
 import './App.css'
-import HomePage from './pages/home/index'
+import HomePage from './pages/rebuildWithClass/index'
 
 import './styles/index'
 import store from './pages/home/store'
@@ -9,7 +9,7 @@ import store from './pages/home/store'
 const App: React.FC = () => {
   return (
     <div className="App">
-      <HomePage title="123" store={store} />
+      <HomePage />
       {/* <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>

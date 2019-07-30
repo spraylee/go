@@ -1,8 +1,10 @@
+import React from 'react'
 import store from './store'
 import { Switch, Select, Button } from 'antd'
 import Stage from './stage'
+import { observer } from 'mobx-react'
 
-const Game: React.FC = props => {
+const Game: React.FC = observer(props => {
   const tips = {
     class: store.table.getNextColor() === store.table.firstColor ? 'left' : 'right',
     text: `${store.gameState.isUserRound ? '玩家' : '电脑'}(${
@@ -12,6 +14,7 @@ const Game: React.FC = props => {
 
   return (
     <div className="main col-center">
+      <span>{JSON.stringify(store.gameState)}</span>
       <div className="stage col">
         <div className="row">
           <div>
@@ -66,6 +69,6 @@ const Game: React.FC = props => {
       </div>
     </div>
   )
-}
+})
 
 export default Game
