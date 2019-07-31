@@ -114,7 +114,7 @@ export class Table {
       this.isOver = true
       this.winColor = 'black'
     } else {
-      this.isOver = false
+      this.isOver = this.isFull
       this.winColor = null
     }
   }

@@ -3,6 +3,7 @@ import { Table, ColorType, UserPlayer, Color } from './Table'
 import { EasyAI } from './AiPlayer'
 import { untilRender } from '../home/core/common'
 import { Modal } from 'antd'
+import { showGameOverTips } from './Modal'
 
 configure({ enforceActions: 'observed' })
 
@@ -51,6 +52,7 @@ class Store {
   @action
   toggleIsShowDangerTips() {
     this.control.isShowDangerTips = !this.control.isShowDangerTips
+    this.setRecommand()
   }
   @action
   setCell(x: number, y: number) {
@@ -87,11 +89,8 @@ class Store {
   async checkIsAiRound() {
     this.setRecommand()
     await untilRender()
-    if (this.table.isFull) {
-      return alert('full')
-    }
     if (this.table.isOver) {
-      return alert('over')
+      return this.showOverTips()
     }
     const nextPlayer = this.table.getNextPlayer()
     if (nextPlayer instanceof EasyAI) {
@@ -103,7 +102,12 @@ class Store {
   }
   @action
   setRecommand() {
-    if (this.table.isFull || this.table.isOver || this.table.getNextPlayer().type === 'AI')
+    if (
+      !this.control.isShowDangerTips ||
+      this.table.isFull ||
+      this.table.isOver ||
+      this.table.getNextPlayer().type === 'AI'
+    )
       return (this.information.userRoundTips = [])
     const AiForRecommand = new EasyAI(this.table, this.table.getNextColor())
     const start = Date.now()
@@ -141,18 +145,7 @@ class Store {
   }
   private async showOverTips() {
     await untilRender()
-    let overMessage = ''
-    if (this.control.gameMode === 'AI' && this.table.getNextPlayer().type === 'AI') {
-      overMessage = this.control.isShowDangerTips ? '你侥幸击败了简单电脑' : '你击败了简单电脑'
-    } else if (this.control.gameMode === 'AI' && this.table.getNextPlayer().type === 'USER') {
-      overMessage = '你居然输给了简单电脑，菜鸡...'
-    } else if (this.table.winColor) {
-      overMessage = `${this.table.winColor === 'black' ? '黑棋' : '白棋'}获胜`
-    } else {
-      overMessage = `棋盘都占满了，未分出胜负`
-    }
-    this.information.gameOverTips = overMessage
-    this.information.isShowGameOverTips = true
+    showGameOverTips(this.table, this.control.gameMode, this.control.isShowDangerTips)
   }
 }
 

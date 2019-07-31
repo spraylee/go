@@ -14,7 +14,7 @@ const Game: React.FC = observer(props => {
 
   return (
     <div className="main col-center">
-      <span>{JSON.stringify(store.gameState)}</span>
+      {/* <span>{JSON.stringify(store.gameState)}</span> */}
       <div className="stage col">
         <div className="row">
           <div>
