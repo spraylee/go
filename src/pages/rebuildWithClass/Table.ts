@@ -157,15 +157,12 @@ export class Table {
     if (!last) throw 'table is new'
     return this.lineByFourDirection(last.x, last.y)
   }
+  cloneContentFrom(table: Table) {
+    this.content.forEach(line => {
+      line.forEach(cell => {
+        const formCell = table.getCell(cell.x, cell.y)
+        this.content[cell.x][cell.y] = new Cell(formCell.x, formCell.y, formCell.color)
+      })
+    })
+  }
 }
-
-// export function lineByFourDirectionAboutLastMove(table: Go.table, x: number, y: number) {
-//   const numberList = [...Array(9)].map((i, j) => j - 4)
-//   const offset = [
-//     numberList.map(i => [i, 0]),
-//     numberList.map(i => [i, i]),
-//     numberList.map(i => [i, -i]),
-//     numberList.map(i => [0, i])
-//   ]
-//   return offset.map(line => line.map(([i, j]) => getCell(table, x + i, y + j)))
-// }

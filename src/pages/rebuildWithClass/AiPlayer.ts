@@ -45,7 +45,7 @@ export class EasyAI {
     return positionList.map((i, j) => ({ ...i, order: j }))
   }
   static positionOrder = [[1, 0], [1, 1], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1]]
-  private static getImportantCellList(table: Table, maxDistance: number = 3) {
+  protected static getImportantCellList(table: Table, maxDistance: number = 3) {
     const result: Cell[] = []
     const offsetList = [[0, 0]]
     ;[...Array(maxDistance)].forEach((i, j) =>
