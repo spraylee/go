@@ -21,7 +21,7 @@ const Game: React.FC = observer(props => {
             <div className={`header ${tips.class}`}>
               <div
                 className={`tips ${(!store.gameState.isActive ||
-                  store.control.gameMode === 'AI|AI') &&
+                  store.control.gameMode === 'EASY_AI|DEEP_AI') &&
                   'opacity'}`}
               >
                 {tips.text}
@@ -40,7 +40,7 @@ const Game: React.FC = observer(props => {
             <div className="control-item">
               <span>危险提示</span>
               <Switch
-                disabled={store.control.gameMode === 'AI|AI'}
+                disabled={store.control.gameMode === 'EASY_AI|DEEP_AI'}
                 checked={store.control.isShowDangerTips}
                 onChange={v => {
                   store.toggleIsShowDangerTips()

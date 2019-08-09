@@ -164,5 +164,6 @@ export class Table {
         this.content[cell.x][cell.y] = new Cell(formCell.x, formCell.y, formCell.color)
       })
     })
+    this.history = table.history.map(i => new Cell(i.x, i.y, i.color))
   }
 }

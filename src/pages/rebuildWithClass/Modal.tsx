@@ -7,10 +7,14 @@ export const showGameOverTips = (table: Table, mode: GameModeType, isShowRecomma
   console.log(1)
   if (!table.isOver) return
   let overMessage = ''
-  if (mode === 'AI' && table.getNextPlayer().type === 'AI') {
+  if (mode === 'EASY_AI' && table.getNextPlayer().type === 'AI') {
     overMessage = isShowRecommand ? '你侥幸击败了简单电脑' : '你击败了简单电脑'
-  } else if (mode === 'AI' && table.getNextPlayer().type === 'USER') {
+  } else if (mode === 'DEEP_AI' && table.getNextPlayer().type === 'AI') {
+    overMessage = isShowRecommand ? '你居然击败了困难电脑' : '你击败了困难电脑'
+  } else if (mode === 'EASY_AI' && table.getNextPlayer().type === 'USER') {
     overMessage = '你居然输给了简单电脑，菜鸡...'
+  } else if (mode === 'DEEP_AI' && table.getNextPlayer().type === 'USER') {
+    overMessage = '你居然输给了困难电脑，请再接再厉...'
   } else if (table.winColor) {
     overMessage = `${table.winColor === 'black' ? '黑棋' : '白棋'}获胜`
   } else {
